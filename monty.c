@@ -1,22 +1,52 @@
 #include "monty.h"
 
-void push(stack_t **stack, unsigned int line_number)
+int main(int argc, char *argv[])
 {
-    stack_t *temp = (stack_t*)malloc(sizeof(stack_t));
-
-    if (temp == NULL)
+    stack_t *mystack = NULL;
+    char *bytecode_file = argv[1];
+    FILE *fp = fopen(bytecode_file, "r");
+    char line[1024];
+    instruction_t instructions[] = {
+        {"push", push},
+        {"NULL", NULL},
+    };
+    if (argc != 2)
     {
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Usage: %s <bytecode_file>\n", argv[0]);
+        return EXIT_FAILURE;
     }
-    
-    temp->n = line_number;
-    temp->next = *stack;
-    temp->prev = NULL;
-
-    if (*stack != NULL)
+    if (fp == NULL)
     {
-        (*stack)->prev = temp;
+        fprintf(stderr, "Failed to open bytecode file: %s\n", bytecode_file);
+        return EXIT_FAILURE;
     }
-        *stack = temp;
+    /*else if (fp != 'c')
+    {
+        fprintf(stderr, "Failed to open bytecode file: %s\n", bytecode_file);
+        return EXIT_FAILURE;
+    }*/
     
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+        char *opcode = strtok(line, " ");
+        if (opcode != NULL && strcmp(opcode, "push") == 0)
+        {
+            char *argument = strtok(NULL, " ");
+            if (argument != NULL)
+            {
+                int number = atoi(argument);
+                instructions[0].f(&mystack, number);
+            }
+        }
+    }
+
+    fclose(fp);
+
+    while (mystack != NULL)
+    {
+        printf("%d\n", mystack->n);
+        mystack = mystack->next;
+    }
+
+    return EXIT_SUCCESS;
 }
