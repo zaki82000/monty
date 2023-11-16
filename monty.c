@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     char line[1024];
     instruction_t instructions[] = {
         {"push", push},
+        {"nop", nop},
         {"NULL", NULL},
     };
     if (argc != 2)
